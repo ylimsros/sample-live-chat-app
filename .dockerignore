@@ -1,0 +1,12 @@
+node_modules
+dist
+.git
+.github
+.env
+.env.example
+.prettierrc
+Dockerfile
+.dockerignore
+README.md
+vitest.config.ts
+src/test
