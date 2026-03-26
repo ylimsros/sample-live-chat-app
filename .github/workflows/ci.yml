@@ -21,14 +21,13 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-      
-      - name: format
+      - name: run code format
         run: npm run format
-
-      - name: linting
+      
+      - name: run code lint
         run: npm run lint
 
-       - name: Run tests
+      - name: Run tests
         run: npm run test
 
       - name: Build project
@@ -42,4 +41,3 @@ jobs:
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
