@@ -21,4 +21,15 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        
+      
+        name: format
+        run: npm run format
+
+        name: linting
+        run: npm run linting
+
+        name: test
+        run: npm test
+
+        name: build project
+        run: npm run build
