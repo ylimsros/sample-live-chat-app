@@ -30,13 +30,13 @@ jobs:
 
       - name: Run tests
         run: npm test
-        
+
       - name: Build project
         run: npm run build
 
       - name: Build and Push Docker Image
-  uses: mr-smithers-excellent/docker-build-push@v4
-  with:
+    uses: mr-smithers-excellent/docker-build-push@v4
+    with:
     image: ylimsros/sample-live-chat-app
     registry: docker.io
     username: ${{ secrets.DOCKER_USERNAME }}
