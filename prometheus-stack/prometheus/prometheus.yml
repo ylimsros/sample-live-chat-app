@@ -2,9 +2,6 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
-# 🔥 NEW (recommended for v3)
-scrape_native_histograms: false
-
 rule_files:
   - "alerts.yml"
 
@@ -25,3 +22,9 @@ scrape_configs:
   - job_name: "app"
     static_configs:
       - targets: ["host.docker.internal:3001"]
+
+  - job_name: "chat-application"
+    static_configs:
+      - targets: ["host.docker.internal:3002"]
+    metrics_path: "/metrics"
+    scrape_interval: 10s

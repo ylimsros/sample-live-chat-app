@@ -5,10 +5,27 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import net from "net";
+import { register, Counter } from "prom-client";
 
-const PORT = 3001;
+const PORT = 3002;
 const LOGSTASH_HOST = process.env.LOGSTASH_HOST || "localhost";
 const LOGSTASH_PORT = 5000;
+
+// Prometheus Metrics
+const connectionCounter = new Counter({
+  name: "chat_connections_total",
+  help: "Total number of user connections",
+});
+
+const disconnectionCounter = new Counter({
+  name: "chat_disconnections_total",
+  help: "Total number of user disconnections",
+});
+
+const messageCounter = new Counter({
+  name: "chat_messages_sent_total",
+  help: "Total number of messages sent",
+});
 
 // Function to send logs to Logstash
 function sendToLogstash(logData: any) {
@@ -39,6 +56,9 @@ async function startServer() {
   // Socket.io Logic
   io.on("connection", (socket) => {
     console.log("A user connected:", socket.id);
+    
+    // Increment connection counter
+    connectionCounter.inc();
     
     // Send connection log to Logstash
     sendToLogstash({
@@ -106,6 +126,9 @@ async function startServer() {
         timestamp: Date.now(),
       };
 
+      // Increment message counter
+      messageCounter.inc();
+
       // Store message
       messages.push(message);
       if (messages.length > 100) messages.shift();
@@ -117,6 +140,10 @@ async function startServer() {
       const user = onlineUsers.get(socket.id);
       if (user) {
         onlineUsers.delete(socket.id);
+        
+        // Increment disconnection counter
+        disconnectionCounter.inc();
+        
         const statusMsg = {
           id: uuidv4(),
           type: "status",
@@ -156,6 +183,12 @@ async function startServer() {
       res.sendFile(path.join(distPath, "index.html"));
     });
   }
+
+  // Prometheus metrics endpoint
+  app.get("/metrics", async (req, res) => {
+    res.set("Content-Type", register.contentType);
+    res.end(await register.metrics());
+  });
 
   httpServer.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
